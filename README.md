@@ -1,7 +1,7 @@
 # PAPR
-Unviersity lab
+Unviersity lab<br><br>
 
-Original authors: 
-Jakub Stankowski, jakub.stankowski@put.poznan.pl,
-Adrian Dziembowski, adrian.dziembowski@put.poznan.pl,
+Original authors: <br>
+Jakub Stankowski, jakub.stankowski@put.poznan.pl,<br>
+Adrian Dziembowski, adrian.dziembowski@put.poznan.pl,<br>
 Poznan University of Technology, Poznań, Poland
