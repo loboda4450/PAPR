@@ -104,7 +104,7 @@ void xSepia_STD::testYUVtoRGBtoYUV_FLT(xPic &Dst, const xPic &Src) {
     }
 }
 
-void xSepia_STD::testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src) {
+void xSepia_STD::testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src) { // idk sth weird happens to colors..
     assert(Dst.getWidth() == Src.getWidth() && Dst.getHeight() == Src.getHeight() &&
            Dst.getStride() == Src.getStride());
     const int32 Width = Dst.getWidth();
