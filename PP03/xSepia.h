@@ -28,21 +28,60 @@ public:
 
     // all these under are just corresponding to upper ones but multiplied by size of int32 and rounded to be integer, not float or double
     static constexpr inline int32 RGB2YCbCr_I32[3][3] = { // gotta right shift it by 16 in the end
-            {13933, 46871, 4732},
-            {-7508, -25260, 32768},
-            {32768, -29763, -3005}
+            {
+                    (int32) (13933),
+                    (int32) (46871),
+                    (int32) (4732),
+            },
+            {
+                    (int32) (-7508),
+                    (int32) (-25260),
+                    (int32) (32768),
+            },
+            {
+                    (int32) (32768),
+                    (int32) (-29763),
+                    (int32) (-3005),
+            },
+
     };
 
     static constexpr inline int32 YCbCr2RGB_I32[3][3] = { // gotta right shift it by 16 in the end
-            {65536, 0, 103206},
-            {65536, -12276, -30679},
-            {65536, 121609, 0}
+            {
+                    (int32) (65536),
+                    (int32) (0),
+                    (int32) (103206),
+            },
+            {
+                    (int32) (65536),
+                    (int32) (-12276),
+                    (int32) (-30679),
+            },
+            {
+                    (int32) (65536),
+                    (int32) (121609),
+                    (int32) (0),
+            },
+
     };
 
     static constexpr inline int32 SEPIA_I32[3][3] = { // gotta right shift it by 16 in the end
-            {25756, 50397, 12386},
-            {22872, 44958, 11010},
-            {17826, 34996, 8585}
+            {
+                    (int32) (25756),
+                    (int32) (50397),
+                    (int32) (12386),
+            },
+            {
+                    (int32) (22872),
+                    (int32) (44958),
+                    (int32) (11010),
+            },
+            {
+                    (int32) (17826),
+                    (int32) (34996),
+                    (int32) (8585),
+            },
+
     };
 };
 
