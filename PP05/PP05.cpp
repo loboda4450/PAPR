@@ -59,8 +59,8 @@
 int32 main(int /*argc*/, char** /*argv*/, char** /*envp*/)
 {   
   //readed from commandline/config 
-  std::string InputFile       = "../../Poznan_Street/Poznan_Street_00_1920x1088_tex_cam03.yuv";
-  std::string OutputFile      = "../../Poznan_Street/Poznan_Street_00_1920x1088_tex_cam03_test.yuv";
+  std::string InputFile       = "/tmp/Poznan_Street/Poznan_Street_00_1920x1088_tex_cam03.yuv";
+  std::string OutputFile      = "/tmp/Poznan_Street/Poznan_Street_00_1920x1088_tex_cam03_test.yuv";
   int32       PictureWidth    = 1920;
   int32       PictureHeight   = 1088;
   int32       BitDepth        = 8   ;  
@@ -143,7 +143,7 @@ int32 main(int /*argc*/, char** /*argv*/, char** /*envp*/)
     tTimePoint T1 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
 
     //PROCESS
-    //Processor.testCopyContent      (PictureDstYUV, PictureSrcYUV);
+//    Processor.testCopyContent      (PictureDstYUV, PictureSrcYUV);
     Processor.testYUVtoRGBtoYUV_FLT(PictureDstYUV, PictureSrcYUV, xSepiaBase::eMode::SERIAL);
     //Processor.applySepiaEffect_FLT(PictureDstYUV, PictureSrcYUV, xSepiaBase::eMode::SERIAL);
     
