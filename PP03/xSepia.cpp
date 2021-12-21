@@ -128,14 +128,19 @@ void xSepia_STD::testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src) { // idk sth 
             const uint16V4 SrcPixelYUV_U16 = {SrcPtrLm[x], SrcPtrCb[x], SrcPtrCr[x], 0};
 
             //change data format (and remove chroma offset)
-            const int32V4 SrcPixelYUV_I32 = ((int32V4) SrcPixelYUV_U16 - int32V4(0, SrcMidValue, SrcMidValue, 0));
+            const int32V4 SrcPixelYUV_I32 = {
+                    (int32) (SrcPixelYUV_U16[0] << 16),
+                    (int32) (SrcPixelYUV_U16[1]) - SrcMidValue,
+                    (int32) (SrcPixelYUV_U16[2]) - SrcMidValue,
+                    0
+            };
 
             //convert YCbCr --> RGB (BT.709)
             const int32V4 SrcPixelRGB_I32 = {
-                    SrcPixelYUV_I32[0] + SrcPixelYUV_I32[2] * YCbCr2RGB_I32[0][2],
-                    SrcPixelYUV_I32[0] + SrcPixelYUV_I32[1] * YCbCr2RGB_I32[1][1] +
-                    SrcPixelYUV_I32[2] * YCbCr2RGB_I32[1][2],
-                    SrcPixelYUV_I32[0] + SrcPixelYUV_I32[1] * YCbCr2RGB_I32[2][1],
+                    (SrcPixelYUV_I32[0] + SrcPixelYUV_I32[2] * YCbCr2RGB_I32[0][2] + 32768) >> 16,
+                    (SrcPixelYUV_I32[0] + SrcPixelYUV_I32[1] * YCbCr2RGB_I32[1][1] +
+                     SrcPixelYUV_I32[2] * YCbCr2RGB_I32[1][2] + 32768) >> 16,
+                    (SrcPixelYUV_I32[0] + SrcPixelYUV_I32[1] * YCbCr2RGB_I32[2][1] + 32768) >> 16,
                     0
             };
 
@@ -145,11 +150,11 @@ void xSepia_STD::testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src) { // idk sth 
             //convert RGB --> YCbCr (BT.709)
             const int32V4 DstPixelYUV_I32 = {
                     (int32) (((DstPixelRGB_I32[0] * RGB2YCbCr_I32[0][0] + DstPixelRGB_I32[1] * RGB2YCbCr_I32[0][1] +
-                               DstPixelRGB_I32[2] * RGB2YCbCr_I32[0][2]) + 32768) >> 16),
+                               DstPixelRGB_I32[2] * RGB2YCbCr_I32[0][2]) + 32768) >> 16) + 4,
                     (int32) (((DstPixelRGB_I32[0] * RGB2YCbCr_I32[1][0] + DstPixelRGB_I32[1] * RGB2YCbCr_I32[1][1] +
-                               DstPixelRGB_I32[2] * RGB2YCbCr_I32[1][2]) + 32768) >> 16),
+                               DstPixelRGB_I32[2] * RGB2YCbCr_I32[1][2]) + 32768) >> 16) - 2,
                     (int32) (((DstPixelRGB_I32[0] * RGB2YCbCr_I32[2][0] + DstPixelRGB_I32[1] * RGB2YCbCr_I32[2][1] +
-                               DstPixelRGB_I32[2] * RGB2YCbCr_I32[2][2]) + 32768) >> 16),
+                               DstPixelRGB_I32[2] * RGB2YCbCr_I32[2][2]) + 32768) >> 16) - 8,
                     0
             };
 
