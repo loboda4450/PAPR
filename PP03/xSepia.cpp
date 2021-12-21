@@ -145,18 +145,18 @@ void xSepia_STD::testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src) { // idk sth 
             //convert RGB --> YCbCr (BT.709)
             const int32V4 DstPixelYUV_I32 = {
                     (int32) (((DstPixelRGB_I32[0] * RGB2YCbCr_I32[0][0] + DstPixelRGB_I32[1] * RGB2YCbCr_I32[0][1] +
-                              DstPixelRGB_I32[2] * RGB2YCbCr_I32[0][2]) + 1) >> 16),
+                               DstPixelRGB_I32[2] * RGB2YCbCr_I32[0][2]) + 32768) >> 16),
                     (int32) (((DstPixelRGB_I32[0] * RGB2YCbCr_I32[1][0] + DstPixelRGB_I32[1] * RGB2YCbCr_I32[1][1] +
-                              DstPixelRGB_I32[2] * RGB2YCbCr_I32[1][2]) + 1) >> 16),
+                               DstPixelRGB_I32[2] * RGB2YCbCr_I32[1][2]) + 32768) >> 16),
                     (int32) (((DstPixelRGB_I32[0] * RGB2YCbCr_I32[2][0] + DstPixelRGB_I32[1] * RGB2YCbCr_I32[2][1] +
-                              DstPixelRGB_I32[2] * RGB2YCbCr_I32[2][2]) + 1) >> 16),
+                               DstPixelRGB_I32[2] * RGB2YCbCr_I32[2][2]) + 32768) >> 16),
                     0
             };
 
             //change data format (and apply chroma offset) + clip to range 0-Max
-            int32V4 TmpPixelYUV_F32 = DstPixelYUV_I32 + int32V4 (0, (int32) (DstMidValue), (int32) (DstMidValue), 0);
-            TmpPixelYUV_F32.clip(xMakeVec4<int32>(0), xMakeVec4<int32>((int32) (DstMaxValue)));
-            const uint16V4 DstPixelYUV_U16 = uint16V4(TmpPixelYUV_F32);
+            int32V4 TmpPixelYUV_I32 = DstPixelYUV_I32 + int32V4(0, DstMidValue, DstMidValue, 0);
+            TmpPixelYUV_I32.clip(xMakeVec4<int32>(0), xMakeVec4<int32>(DstMaxValue));
+            const uint16V4 DstPixelYUV_U16 = uint16V4(TmpPixelYUV_I32);
 
             //store
             DstPtrLm[x] = DstPixelYUV_U16[0];

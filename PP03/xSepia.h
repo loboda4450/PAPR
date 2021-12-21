@@ -26,7 +26,7 @@ public:
                     {(flt32) (0.272), (flt32) (0.534), (flt32) (0.131)},
             };
 
-    // all these under are just corresponding to upper ones but multiplied by size of int32 and rounded to be integer, not float or double
+    // all these under are just corresponding to upper ones but multiplied by size of int16 and rounded to be integer, not float or double
     static constexpr inline int32 RGB2YCbCr_I32[3][3] = { // gotta right shift it by 16 in the end
             {
                     (int32) (13933),
