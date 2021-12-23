@@ -121,8 +121,8 @@ int32 main(int /*argc*/, char ** /*argv*/, char ** /*envp*/) {
     xPic PictureSrcYUV(PictureWidth, PictureHeight, BitDepth, false);
     xPic PictureDstYUV(PictureWidth, PictureHeight, BitDepth, false);
 
-    xSepia_STD Processor;
-    //xSepia_SSE Processor;
+//    xSepia_STD Processor;
+    xSepia_SSE Processor;
     Processor.setNumThreads(FinalNumberOfThreads);
     Processor.setVerboseLevel(VerboseLevel);
 
@@ -147,11 +147,11 @@ int32 main(int /*argc*/, char ** /*argv*/, char ** /*envp*/) {
         tTimePoint T1 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
 
         //PROCESS
-        Processor.testCopyContent(PictureDstYUV, PictureSrcYUV);
+//        Processor.testCopyContent(PictureDstYUV, PictureSrcYUV);
 //        Processor.testYUVtoRGBtoYUV_FLT(PictureDstYUV, PictureSrcYUV);
-        //Processor.testYUVtoRGBtoYUV_INT(PictureDstYUV, PictureSrcYUV);
-        //Processor.applySepiaEffect_FLT(PictureDstYUV, PictureSrcYUV);
-        //Processor.applySepiaEffect_INT(PictureDstYUV, PictureSrcYUV);
+//        Processor.testYUVtoRGBtoYUV_INT(PictureDstYUV, PictureSrcYUV);
+        Processor.applySepiaEffect_FLT(PictureDstYUV, PictureSrcYUV);
+//        Processor.applySepiaEffect_INT(PictureDstYUV, PictureSrcYUV);
 
         tTimePoint T2 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
 
@@ -169,6 +169,7 @@ int32 main(int /*argc*/, char ** /*argv*/, char ** /*envp*/) {
         DurationStor += (T3 - T2);
 
         if (VerboseLevel >= 2) { fmt::printf("Frame %08d\n", f); }
+        if (f==20) {break;}
     }
 
     //==============================================================================
