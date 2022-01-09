@@ -43,17 +43,17 @@ public:
 
 //===============================================================================================================================================================================================================
 
-class xSepia_STD : public xSepiaBase
-{
-public:
-  void  testCopyContent      (xPic& Dst, const xPic& Src);
-
-  void  testYUVtoRGBtoYUV_FLT(xPic& Dst, const xPic& Src);
-  void  testYUVtoRGBtoYUV_INT(xPic& Dst, const xPic& Src);
-
-  void  applySepiaEffect_FLT (xPic& Dst, const xPic& Src);
-  void  applySepiaEffect_INT (xPic& Dst, const xPic& Src);
-};
+//class xSepia_STD : public xSepiaBase
+//{
+//public:
+//  void  testCopyContent      (xPic& Dst, const xPic& Src);
+//
+//  void  testYUVtoRGBtoYUV_FLT(xPic& Dst, const xPic& Src);
+//  void  testYUVtoRGBtoYUV_INT(xPic& Dst, const xPic& Src);
+//
+//  void  applySepiaEffect_FLT (xPic& Dst, const xPic& Src);
+//  void  applySepiaEffect_INT (xPic& Dst, const xPic& Src);
+//};
 
 //===============================================================================================================================================================================================================
 

@@ -147,11 +147,11 @@ int32 main(int /*argc*/, char ** /*argv*/, char ** /*envp*/) {
         tTimePoint T1 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
 
         //PROCESS
-        Processor.testCopyContent(PictureDstYUV, PictureSrcYUV);
-//        Processor.testYUVtoRGBtoYUV_FLT(PictureDstYUV, PictureSrcYUV);
-        //Processor.testYUVtoRGBtoYUV_INT(PictureDstYUV, PictureSrcYUV);
-        //Processor.applySepiaEffect_FLT(PictureDstYUV, PictureSrcYUV);
-        //Processor.applySepiaEffect_INT(PictureDstYUV, PictureSrcYUV);
+//        Processor.testCopyContent(PictureDstYUV, PictureSrcYUV);
+        Processor.testYUVtoRGBtoYUV_FLT(PictureDstYUV, PictureSrcYUV);
+//        Processor.testYUVtoRGBtoYUV_INT(PictureDstYUV, PictureSrcYUV);
+//        Processor.applySepiaEffect_FLT(PictureDstYUV, PictureSrcYUV);
+//        Processor.applySepiaEffect_INT(PictureDstYUV, PictureSrcYUV);
 
         tTimePoint T2 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
 
