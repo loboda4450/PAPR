@@ -31,9 +31,9 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- // Original authors: Jakub Stankowski, jakub.stankowski@put.poznan.pl,
- //                   Adrian Dziembowski, adrian.dziembowski@put.poznan.pl,
- //                   Poznan University of Technology, Poznań, Poland
+// Original authors: Jakub Stankowski, jakub.stankowski@put.poznan.pl,
+//                   Adrian Dziembowski, adrian.dziembowski@put.poznan.pl,
+//                   Poznan University of Technology, Poznań, Poland
 
 //===============================================================================================================================================================================================================
 
@@ -51,138 +51,149 @@
 #include "lib_fmt/chrono.h"
 
 #if defined(_OPENMP)
+
 #include <omp.h>
+
 #endif //_OPENMP
 
 //===============================================================================================================================================================================================================
 
-int32 main(int /*argc*/, char** /*argv*/, char** /*envp*/)
-{   
-  //readed from commandline/config 
-  std::string InputFile       = "/tmp/Poznan_Street/Poznan_Street_00_1920x1088_tex_cam03.yuv";
-  std::string OutputFile      = "/tmp/Poznan_Street/Poznan_Street_00_1920x1088_tex_cam03_test.yuv";
-  int32       PictureWidth    = 1920;
-  int32       PictureHeight   = 1088;
-  int32       BitDepth        = 8   ;  
-  int32       ChromaFormat    = 420 ;
-  int32       NumberOfFrames  = -1  ;  
-  int32       NumberOfThreads = -1  ;
-  int32       VerboseLevel    = 4   ;
+int32 main(int /*argc*/, char ** /*argv*/, char ** /*envp*/) {
+    //readed from commandline/config
+    std::string InputFile = "/tmp/Poznan_Street/Poznan_Street_00_1920x1088_tex_cam03.yuv";
+    std::string OutputFile = "/tmp/Poznan_Street/Poznan_Street_00_1920x1088_tex_cam03_test.yuv";
+    int32 PictureWidth = 1920;
+    int32 PictureHeight = 1088;
+    int32 BitDepth = 8;
+    int32 ChromaFormat = 420;
+    int32 NumberOfFrames = -1;
+    int32 NumberOfThreads = -1;
+    int32 VerboseLevel = 4;
 
-  //check OpenMP
+    //check OpenMP
 #if defined(_OPENMP)
-  int32 FinalNumberOfThreads = NumberOfThreads < 0 ? omp_get_max_threads() : std::min(NumberOfThreads, omp_get_max_threads());
+    int32 FinalNumberOfThreads =
+            NumberOfThreads < 0 ? omp_get_max_threads() : std::min(NumberOfThreads, omp_get_max_threads());
 #else
-  int32 FinalNumberOfThreads = 0;
+    int32 FinalNumberOfThreads = 0;
 #endif
 
-  //print config
-  if(VerboseLevel >= 1)
-  {
-    fmt::printf("Configuration:\n");
-    fmt::printf("InputFile       = %s\n", InputFile        );
-    fmt::printf("OutputFile      = %s\n", InputFile        );
-    fmt::printf("PictureWidth    = %d\n", PictureWidth     );
-    fmt::printf("PictureHeight   = %d\n", PictureHeight    );
-    fmt::printf("BitDepth        = %d\n", BitDepth         );
-    fmt::printf("ChromaFormat    = %d\n", ChromaFormat     );
-    fmt::printf("NumberOfFrames  = %d%s\n", NumberOfFrames, NumberOfFrames==NOT_VALID ? "  (all)" : "");
-    fmt::printf("NumberOfThreads = %d%s\n", FinalNumberOfThreads, NumberOfThreads == NOT_VALID ? "  (all)" : "");
-    fmt::printf("VerboseLevel    = %d\n", VerboseLevel     );
+    //print config
+    if (VerboseLevel >= 1) {
+        fmt::printf("Configuration:\n");
+        fmt::printf("InputFile       = %s\n", InputFile);
+        fmt::printf("OutputFile      = %s\n", InputFile);
+        fmt::printf("PictureWidth    = %d\n", PictureWidth);
+        fmt::printf("PictureHeight   = %d\n", PictureHeight);
+        fmt::printf("BitDepth        = %d\n", BitDepth);
+        fmt::printf("ChromaFormat    = %d\n", ChromaFormat);
+        fmt::printf("NumberOfFrames  = %d%s\n", NumberOfFrames, NumberOfFrames == NOT_VALID ? "  (all)" : "");
+        fmt::printf("NumberOfThreads = %d%s\n", FinalNumberOfThreads, NumberOfThreads == NOT_VALID ? "  (all)" : "");
+        fmt::printf("VerboseLevel    = %d\n", VerboseLevel);
+        fmt::printf("\n");
+    }
+
+    //==============================================================================
+    //operation
+    if (VerboseLevel >= 2) { fmt::printf("Initializing:\n"); }
+
+    if (!xFile::exist(InputFile)) {
+        fmt::printf("ERROR --> InputFile does not exist (%s)", InputFile);
+        return EXIT_FAILURE;
+    }
+    int64 SizeOfInputFile = xFile::filesize(InputFile);
+    if (VerboseLevel >= 1) { fmt::printf("SizeOfInputFile = %d\n", SizeOfInputFile); }
+
+
+    int32 NumOfFrames = xSeq::calcNumFramesInFile(PictureWidth, PictureHeight, BitDepth, ChromaFormat, SizeOfInputFile);
+    if (VerboseLevel >= 1) { fmt::printf("DetectedFrames  = %d\n", NumOfFrames); }
+
+    int32 MinSeqNumFrames = NumOfFrames;
+    int32 NumFrames = NumberOfFrames > 0 ? NumberOfFrames : MinSeqNumFrames;
+    if (VerboseLevel >= 1) { fmt::printf("FramesToProcess = %d\n", NumFrames); }
     fmt::printf("\n");
-  }
 
-  //==============================================================================
-  //operation
-  if(VerboseLevel >= 2) { fmt::printf("Initializing:\n"); }
+    xSeq SequenceSrc(PictureWidth, PictureHeight, BitDepth, ChromaFormat);
+    xSeq SequenceDst(PictureWidth, PictureHeight, BitDepth, ChromaFormat);
+    SequenceSrc.openFile(InputFile, xSeq::eMode::Read);
+    SequenceDst.openFile(OutputFile, xSeq::eMode::Write);
 
-  if(!xFile::exist(InputFile)) { fmt::printf("ERROR --> InputFile does not exist (%s)", InputFile); return EXIT_FAILURE; }
-  int64 SizeOfInputFile = xFile::filesize(InputFile);
-  if(VerboseLevel >= 1) { fmt::printf("SizeOfInputFile = %d\n", SizeOfInputFile); }
+    xPic PictureSrcYUV(PictureWidth, PictureHeight, BitDepth, false);
+    xPic PictureDstYUV(PictureWidth, PictureHeight, BitDepth, false);
 
+    xThreadPool ThreadPool;
+    ThreadPool.create(FinalNumberOfThreads, PictureWidth * PictureHeight);
 
-  int32 NumOfFrames = xSeq::calcNumFramesInFile(PictureWidth, PictureHeight, BitDepth, ChromaFormat, SizeOfInputFile);
-  if(VerboseLevel >= 1) { fmt::printf("DetectedFrames  = %d\n", NumOfFrames); }
+    xSepia_STD Processor;
+    Processor.setVerboseLevel(VerboseLevel);
+    Processor.setThreadPool(&ThreadPool);
 
-  int32 MinSeqNumFrames = NumOfFrames;
-  int32 NumFrames       = NumberOfFrames > 0 ? NumberOfFrames : MinSeqNumFrames;
-  if(VerboseLevel >= 1) { fmt::printf("FramesToProcess = %d\n", NumFrames); }
-  fmt::printf("\n");
+    //==============================================================================
+    //running
+    if (VerboseLevel >= 2) { fmt::printf("Running:\n"); }
 
-  xSeq SequenceSrc(PictureWidth, PictureHeight, BitDepth, ChromaFormat);
-  xSeq SequenceDst(PictureWidth, PictureHeight, BitDepth, ChromaFormat);
-  SequenceSrc.openFile(InputFile , xSeq::eMode::Read );
-  SequenceDst.openFile(OutputFile, xSeq::eMode::Write);
+    tDuration DurationLoad = tDuration(0);
+    tDuration DurationProc = tDuration(0);
+    tDuration DurationStor = tDuration(0);
 
-  xPic PictureSrcYUV(PictureWidth, PictureHeight, BitDepth, false);
-  xPic PictureDstYUV(PictureWidth, PictureHeight, BitDepth, false);
+    for (int32 f = 0; f < NumFrames; f++) {
+        tTimePoint T0 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
 
-  xThreadPool ThreadPool;
-  ThreadPool.create(FinalNumberOfThreads, PictureWidth * PictureHeight);
+        //LOAD
+        bool ReadOK = SequenceSrc.readFrame(&PictureSrcYUV);
+        if (!ReadOK) {
+            fmt::printf("ERROR --> InputFile read error (%s)", InputFile);
+            return EXIT_FAILURE;
+        }
 
-  xSepia_STD Processor;
-  Processor.setVerboseLevel(VerboseLevel);
-  Processor.setThreadPool  (&ThreadPool );
+        tTimePoint T1 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
 
-  //==============================================================================
-  //running
-  if(VerboseLevel >= 2) { fmt::printf("Running:\n"); }
-
-  tDuration DurationLoad = tDuration(0);
-  tDuration DurationProc = tDuration(0);
-  tDuration DurationStor = tDuration(0);
-
-  for(int32 f = 0; f < NumFrames; f++)
-  {
-    tTimePoint T0 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
-
-    //LOAD
-    bool ReadOK = SequenceSrc.readFrame(&PictureSrcYUV);
-    if(!ReadOK) { fmt::printf("ERROR --> InputFile read error (%s)", InputFile); return EXIT_FAILURE; }
-
-    tTimePoint T1 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
-
-    //PROCESS
+        //PROCESS
 //    Processor.testCopyContent      (PictureDstYUV, PictureSrcYUV);
-    Processor.testYUVtoRGBtoYUV_FLT(PictureDstYUV, PictureSrcYUV, xSepiaBase::eMode::SERIAL);
-    //Processor.applySepiaEffect_FLT(PictureDstYUV, PictureSrcYUV, xSepiaBase::eMode::SERIAL);
-    
-    tTimePoint T2 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
+        Processor.testYUVtoRGBtoYUV_FLT(PictureDstYUV, PictureSrcYUV, xSepiaBase::eMode::SERIAL);
+        //Processor.applySepiaEffect_FLT(PictureDstYUV, PictureSrcYUV, xSepiaBase::eMode::SERIAL);
 
-    //STORE
-    bool WriteOK = SequenceDst.writeFrame(&PictureDstYUV);
-    if(!WriteOK) { fmt::printf("ERROR --> OutputFile write error (%s)", OutputFile); return EXIT_FAILURE; }
+        tTimePoint T2 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
 
-    tTimePoint T3 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
+        //STORE
+        bool WriteOK = SequenceDst.writeFrame(&PictureDstYUV);
+        if (!WriteOK) {
+            fmt::printf("ERROR --> OutputFile write error (%s)", OutputFile);
+            return EXIT_FAILURE;
+        }
 
-    DurationLoad += (T1 - T0);
-    DurationProc += (T2 - T1);
-    DurationStor += (T3 - T2);
+        tTimePoint T3 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
 
-    if(VerboseLevel >= 2) { fmt::printf("Frame %08d\n", f); }
-  }
+        DurationLoad += (T1 - T0);
+        DurationProc += (T2 - T1);
+        DurationStor += (T3 - T2);
 
-  //==============================================================================
-  //cleanup
-  SequenceSrc.closeFile();
-  SequenceDst.closeFile();
+        if (VerboseLevel >= 2) { fmt::printf("Frame %08d\n", f); }
+    }
 
-  ThreadPool.destroy();
+    //==============================================================================
+    //cleanup
+    SequenceSrc.closeFile();
+    SequenceDst.closeFile();
 
-  //==============================================================================
-  //printout results
-  fmt::printf("\n\n");
-  if(VerboseLevel >= 3)
-  {
-    fmt::printf("AvgTime LOAD %9.2f ms\n", std::chrono::duration_cast<tDurationMS>(DurationLoad).count() / NumFrames); 
-    fmt::printf("AvgTime PROC %9.2f ms\n", std::chrono::duration_cast<tDurationMS>(DurationProc).count() / NumFrames);
-    fmt::printf("AvgTime STOR %9.2f ms\n", std::chrono::duration_cast<tDurationMS>(DurationStor).count() / NumFrames);
-  }
-  fmt::printf("\n");
-  fmt::printf("NumFrames %d\n", NumFrames);
-  fmt::printf("END-OF-LOG\n");
+    ThreadPool.destroy();
 
-  return EXIT_SUCCESS;
+    //==============================================================================
+    //printout results
+    fmt::printf("\n\n");
+    if (VerboseLevel >= 3) {
+        fmt::printf("AvgTime LOAD %9.2f ms\n",
+                    std::chrono::duration_cast<tDurationMS>(DurationLoad).count() / NumFrames);
+        fmt::printf("AvgTime PROC %9.2f ms\n",
+                    std::chrono::duration_cast<tDurationMS>(DurationProc).count() / NumFrames);
+        fmt::printf("AvgTime STOR %9.2f ms\n",
+                    std::chrono::duration_cast<tDurationMS>(DurationStor).count() / NumFrames);
+    }
+    fmt::printf("\n");
+    fmt::printf("NumFrames %d\n", NumFrames);
+    fmt::printf("END-OF-LOG\n");
+
+    return EXIT_SUCCESS;
 }
 
 //===============================================================================================================================================================================================================
