@@ -1,6 +1,41 @@
 #include "xSepia.h"
 
 //===============================================================================================================================================================================================================
+void xSepia_STD::createTasks(const xPic &Src, xPic &Dst, const int &Height, const int &Width, const int &TileSize){
+    int32 TSize = TileSize;
+    int32 x = 0, y = 0, tasks = 0;
+    std::stack<int32> xstack, ystack;
+    xstack.push(0);
+    ystack.push(0);
+    while (y <= Height) {
+        TSize = getTileSize(Height, TileSize, y);
+        x = xstack.top();
+        xstack.pop();
+        y = ystack.top();
+        ystack.pop();
+        while (x < Width) {
+            TSize = getTileSize(Width, TSize, x);
+            if (not ystack.empty()){
+                if ((y + TSize) != ystack.top()) {
+                    xstack.push(x);
+                    ystack.push(y + TSize);
+                }
+            } else {
+                xstack.push(x);
+                ystack.push(y + TSize);
+            }
+            m_ThreadPool->addWaitingTask([&Dst, &Src, x, y, TSize](int32 ThreadIdx) {
+                xTestYUVtoRGBtoYUV_FLT(Dst, Src, y, y + TSize, x, x + TSize);});
+            x += TSize;
+            tasks += 1;
+        }
+        y += TSize;
+        if (x == Width and y == Height) {
+            m_ThreadPool->waitUntilTasksFinished(tasks);
+            break;
+        }
+    }
+}
 
 void xSepia_STD::testCopyContent(xPic &Dst, const xPic &Src) {
     assert(Dst.getWidth() == Src.getWidth() && Dst.getHeight() == Src.getHeight() &&
@@ -63,10 +98,9 @@ void xSepia_STD::testYUVtoRGBtoYUV_FLT(xPic &Dst, const xPic &Src, eMode ProcMod
             break;
 
         case eMode::TILES4: {
-            const int32 Log2TileSize = (int32) ProcMode;
-            const int32 TileSize = 1 << Log2TileSize;
-            for (int32 y = 0; y < Height; y+=TileSize) {
-                for (int32 x = 0; x < Width; x+=TileSize) {
+            const int32 TileSize = 1 << (int32) ProcMode;
+            for (int32 y = 0; y < Height; y += TileSize) {
+                for (int32 x = 0; x < Width; x += TileSize) {
                     m_ThreadPool->addWaitingTask([&Dst, &Src, x, y](int32 /*ThreadIdx*/) {
                         xTestYUVtoRGBtoYUV_FLT(Dst, Src, y, y + 4, x, x + 4);
                     });
@@ -76,51 +110,43 @@ void xSepia_STD::testYUVtoRGBtoYUV_FLT(xPic &Dst, const xPic &Src, eMode ProcMod
             break;
         }
         case eMode::TILES8: {
-            const int32 Log2TileSize = (int32) ProcMode;
-            const int32 TileSize = 1 << Log2TileSize;
-            //SOME IMAGE PROCESING
+            const int32 TileSize = 1 << (int32) ProcMode;
+            createTasks(Src, Dst, Height, Width, TileSize);
             break;
         }
         case eMode::TILES16: {
-            const int32 Log2TileSize = (int32) ProcMode;
-            const int32 TileSize = 1 << Log2TileSize;
-            //SOME IMAGE PROCESING
+            const int32 TileSize = 1 << (int32) ProcMode;
+            createTasks(Src, Dst, Height, Width, TileSize);
             break;
         }
         case eMode::TILES32: {
-            const int32 Log2TileSize = (int32) ProcMode;
-            const int32 TileSize = 1 << Log2TileSize;
-            //SOME IMAGE PROCESING
+            const int32 TileSize = 1 << (int32) ProcMode;
+            createTasks(Src, Dst, Height, Width, TileSize);
             break;
         }
         case eMode::TILES64: {
-            const int32 Log2TileSize = (int32) ProcMode;
-            const int32 TileSize = 1 << Log2TileSize;
-            //SOME IMAGE PROCESING
+            const int32 TileSize = 1 << (int32) ProcMode;
+            createTasks(Src, Dst, Height, Width, TileSize);
             break;
         }
         case eMode::TILES128: {
-            const int32 Log2TileSize = (int32) ProcMode;
-            const int32 TileSize = 1 << Log2TileSize;
-            //SOME IMAGE PROCESING
+            const int32 TileSize = 1 << (int32) ProcMode;
+            createTasks(Src, Dst, Height, Width, TileSize);
             break;
         }
         case eMode::TILES256: {
-            const int32 Log2TileSize = (int32) ProcMode;
-            const int32 TileSize = 1 << Log2TileSize;
-            //SOME IMAGE PROCESING
+            const int32 TileSize = 1 << (int32) ProcMode;
+            createTasks(Src, Dst, Height, Width, TileSize);
             break;
         }
         case eMode::TILES512: {
-            const int32 Log2TileSize = (int32) ProcMode;
-            const int32 TileSize = 1 << Log2TileSize;
-            //SOME IMAGE PROCESING
+            const int32 TileSize = 1 << (int32) ProcMode;
+            createTasks(Src, Dst, Height, Width, TileSize);
             break;
         }
         case eMode::TILES1024: {
-            const int32 Log2TileSize = (int32) ProcMode;
-            const int32 TileSize = 1 << Log2TileSize;
-            //SOME IMAGE PROCESING
+            const int32 TileSize = 1 << (int32) ProcMode;
+            createTasks(Src, Dst, Height, Width, TileSize);
             break;
         }
 
