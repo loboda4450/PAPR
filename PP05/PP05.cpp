@@ -150,8 +150,8 @@ int32 main(int /*argc*/, char ** /*argv*/, char ** /*envp*/) {
 
         //PROCESS
 //    Processor.testCopyContent      (PictureDstYUV, PictureSrcYUV);
-        Processor.testYUVtoRGBtoYUV_FLT(PictureDstYUV, PictureSrcYUV, xSepiaBase::eMode::TILES512);
-        //Processor.applySepiaEffect_FLT(PictureDstYUV, PictureSrcYUV, xSepiaBase::eMode::SERIAL);
+//        Processor.testYUVtoRGBtoYUV_FLT(PictureDstYUV, PictureSrcYUV, xSepiaBase::eMode::TILES512);
+        Processor.applySepiaEffect_FLT(PictureDstYUV, PictureSrcYUV, xSepiaBase::eMode::TILES1024);
 
         tTimePoint T2 = (VerboseLevel >= 3) ? tClock::now() : tTimePoint::min();
 

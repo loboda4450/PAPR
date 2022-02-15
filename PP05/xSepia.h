@@ -76,7 +76,7 @@ public:
         return newTileSize;
     }
 
-    void createTasks(const xPic &Src, xPic &Dst, const int &Height, const int &Width, const int &TileSize);
+    void createTasks(const xPic &Src, xPic &Dst, const int &Height, const int &Width, const int &TileSize, const bool &Mode);
 
 protected:
     static void xTestYUVtoRGBtoYUV_FLT(xPic &Dst, const xPic &Src, int32 BegY, int32 EndY, int32 BegX, int32 EndX);

@@ -1,7 +1,7 @@
 #include "xSepia.h"
 
 //===============================================================================================================================================================================================================
-void xSepia_STD::createTasks(const xPic &Src, xPic &Dst, const int &Height, const int &Width, const int &TileSize){
+void xSepia_STD::createTasks(const xPic &Src, xPic &Dst, const int &Height, const int &Width, const int &TileSize, const bool &Mode){
     int32 TSize = TileSize;
     int32 x = 0, y = 0, tasks = 0;
     std::stack<int32> xstack, ystack;
@@ -24,8 +24,15 @@ void xSepia_STD::createTasks(const xPic &Src, xPic &Dst, const int &Height, cons
                 xstack.push(x);
                 ystack.push(y + TSize);
             }
-            m_ThreadPool->addWaitingTask([&Dst, &Src, x, y, TSize](int32 ThreadIdx) {
-                xTestYUVtoRGBtoYUV_FLT(Dst, Src, y, y + TSize, x, x + TSize);});
+            if (Mode) { //due to my laziness i wont make an enum or even more wont pass a method to execute, satisfy yself with this shit. enjoy.
+                m_ThreadPool->addWaitingTask([&Dst, &Src, x, y, TSize](int32 ThreadIdx) {
+                    xTestYUVtoRGBtoYUV_FLT(Dst, Src, y, y + TSize, x, x + TSize);
+                });
+            } else {
+                m_ThreadPool->addWaitingTask([&Dst, &Src, x, y, TSize](int32 ThreadIdx) {
+                    xApplySepiaEffect_FLT(Dst, Src, y, y + TSize, x, x + TSize);
+                });
+            }
             x += TSize;
             tasks += 1;
         }
@@ -109,44 +116,16 @@ void xSepia_STD::testYUVtoRGBtoYUV_FLT(xPic &Dst, const xPic &Src, eMode ProcMod
             m_ThreadPool->waitUntilTasksFinished(Width * Height);
             break;
         }
-        case eMode::TILES8: {
-            const int32 TileSize = 1 << (int32) ProcMode;
-            createTasks(Src, Dst, Height, Width, TileSize);
-            break;
-        }
-        case eMode::TILES16: {
-            const int32 TileSize = 1 << (int32) ProcMode;
-            createTasks(Src, Dst, Height, Width, TileSize);
-            break;
-        }
-        case eMode::TILES32: {
-            const int32 TileSize = 1 << (int32) ProcMode;
-            createTasks(Src, Dst, Height, Width, TileSize);
-            break;
-        }
-        case eMode::TILES64: {
-            const int32 TileSize = 1 << (int32) ProcMode;
-            createTasks(Src, Dst, Height, Width, TileSize);
-            break;
-        }
-        case eMode::TILES128: {
-            const int32 TileSize = 1 << (int32) ProcMode;
-            createTasks(Src, Dst, Height, Width, TileSize);
-            break;
-        }
-        case eMode::TILES256: {
-            const int32 TileSize = 1 << (int32) ProcMode;
-            createTasks(Src, Dst, Height, Width, TileSize);
-            break;
-        }
-        case eMode::TILES512: {
-            const int32 TileSize = 1 << (int32) ProcMode;
-            createTasks(Src, Dst, Height, Width, TileSize);
-            break;
-        }
+        case eMode::TILES8:
+        case eMode::TILES16:
+        case eMode::TILES32:
+        case eMode::TILES64:
+        case eMode::TILES128:
+        case eMode::TILES256:
+        case eMode::TILES512:
         case eMode::TILES1024: {
             const int32 TileSize = 1 << (int32) ProcMode;
-            createTasks(Src, Dst, Height, Width, TileSize);
+            createTasks(Src, Dst, Height, Width, TileSize, true);
             break;
         }
 
@@ -194,9 +173,8 @@ void xSepia_STD::applySepiaEffect_FLT(xPic &Dst, const xPic &Src, eMode ProcMode
         case eMode::TILES256:
         case eMode::TILES512:
         case eMode::TILES1024: {
-            const int32 Log2TileSize = (int32) ProcMode;
-            const int32 TileSize = 1 << Log2TileSize;
-            //SOME IMAGE PROCESING
+            const int32 TileSize = 1 << (int32) ProcMode;
+            createTasks(Src, Dst, Height, Width, TileSize, false);
             break;
         }
         default:
