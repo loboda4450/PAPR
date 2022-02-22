@@ -450,14 +450,6 @@ void xSepia_SSE::testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src) {
                 __m128i SrcCr0_I32 = _mm_cvtepi16_epi32(SrcCrV_U16);
                 __m128i SrcCr1_I32 = _mm_cvtepi16_epi32(_mm_srli_si128(SrcCrV_U16, 8));
 
-                // SHIT UNDER IS JUST PARSING UPPER VALS TO FLOAT
-//                __m128  SrcLm0_F32 = _mm_cvtepi32_ps(SrcLm0_I32);
-//                __m128  SrcLm1_F32 = _mm_cvtepi32_ps(SrcLm1_I32);
-//                __m128  SrcCb0_F32 = _mm_cvtepi32_ps(_mm_sub_epi32(SrcCb0_I32, SrcMidValueV_I32));
-//                __m128  SrcCb1_F32 = _mm_cvtepi32_ps(_mm_sub_epi32(SrcCb1_I32, SrcMidValueV_I32));
-//                __m128  SrcCr0_F32 = _mm_cvtepi32_ps(_mm_sub_epi32(SrcCr0_I32, SrcMidValueV_I32));
-//                __m128  SrcCr1_F32 = _mm_cvtepi32_ps(_mm_sub_epi32(SrcCr1_I32, SrcMidValueV_I32));
-
                 // removing chroma offset
                 SrcCb0_I32 = _mm_sub_epi32(SrcCb0_I32, SrcMidValueV_I32);
                 SrcCb1_I32 = _mm_sub_epi32(SrcCb1_I32, SrcMidValueV_I32);
@@ -510,32 +502,32 @@ void xSepia_SSE::testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src) {
                                 _mm_set1_epi32(YCbCr2RGB_I32[2][1])));
 
                 //add round value and right shift by 16
-                SrcR0_I32 = _mm_srli_epi32(
+                SrcR0_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
                                 SrcR0_I32,
                                 _mm_set1_epi32(32768)),
                         16);
-                SrcR1_I32 = _mm_srli_epi32(
+                SrcR1_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
                                 SrcR1_I32,
                                 _mm_set1_epi32(32768)),
                         16);
-                SrcG0_I32 = _mm_srli_epi32(
+                SrcG0_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
                                 SrcG0_I32,
                                 _mm_set1_epi32(32768)),
                         16);
-                SrcG1_I32 = _mm_srli_epi32(
+                SrcG1_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
                                 SrcG1_I32,
                                 _mm_set1_epi32(32768)),
                         16);
-                SrcB0_I32 = _mm_srli_epi32(
+                SrcB0_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
                                 SrcB0_I32,
                                 _mm_set1_epi32(32768)),
                         16);
-                SrcB1_I32 = _mm_srli_epi32(
+                SrcB1_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
                                 SrcB1_I32,
                                 _mm_set1_epi32(32768)),
@@ -550,14 +542,14 @@ void xSepia_SSE::testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src) {
                 __m128i DstB0_I32 = SrcB0_I32;
                 __m128i DstB1_I32 = SrcB1_I32;
 
-                //print section for debugging purposes (debugger sucks..)
-                print128_num(DstR0_I32);
-                print128_num(DstR1_I32);
-                print128_num(DstG0_I32);
-                print128_num(DstG1_I32);
-                print128_num(DstB0_I32);
-                print128_num(DstB1_I32);
-                printf("\n\n");
+//                //print section for debugging purposes (debugger sucks..)
+//                print128_num(DstR0_I32);
+//                print128_num(DstR1_I32);
+//                print128_num(DstG0_I32);
+//                print128_num(DstG1_I32);
+//                print128_num(DstB0_I32);
+//                print128_num(DstB1_I32);
+//                printf("\n\n");
 
                 //convert RGB --> YCbCr (BT.709)
                 __m128i DstLm0_I32 = _mm_add_epi32(
@@ -638,37 +630,39 @@ void xSepia_SSE::testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src) {
                                         _mm_set1_epi32(RGB2YCbCr_I32[2][2]))));
 
                 //add round value and right shift by 16
-                DstLm0_I32 = _mm_srli_epi32(
+                DstLm0_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
                                 DstLm0_I32,
                                 _mm_set1_epi32(32768)),
                         16);
-                DstLm1_I32 = _mm_srli_epi32(
+                DstLm1_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
                                 DstLm1_I32,
                                 _mm_set1_epi32(32768)),
                         16);
-                DstCb0_I32 = _mm_srli_epi32(
+                DstCb0_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
                                 DstCb0_I32,
                                 _mm_set1_epi32(32768)),
                         16);
 
-                DstCb1_I32 = _mm_srli_epi32(
+                DstCb1_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
                                 DstCb1_I32,
                                 _mm_set1_epi32(32768)),
                         16);
-                DstCr0_I32 = _mm_srli_epi32(
+                DstCr0_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
                                 DstCr0_I32,
                                 _mm_set1_epi32(32768)),
                         16);
-                DstCr1_I32 = _mm_srli_epi32(
+                DstCr1_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
                                 DstCr1_I32,
                                 _mm_set1_epi32(32768)),
                         16);
+
+
 
                 //skipping converting luma cuz we work on ints
                 //change data format (and apply chroma offset) + clip to range 0-Max
