@@ -450,6 +450,10 @@ void xSepia_SSE::testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src) {
                 __m128i SrcCr0_I32 = _mm_cvtepi16_epi32(SrcCrV_U16);
                 __m128i SrcCr1_I32 = _mm_cvtepi16_epi32(_mm_srli_si128(SrcCrV_U16, 8));
 
+                // bright it up
+                SrcLm0_I32 = _mm_mul_epi32(SrcLm0_I32, _mm_set1_epi32(32768));
+                SrcLm1_I32 = _mm_mul_epi32(SrcLm1_I32, _mm_set1_epi32(32768));
+
                 // removing chroma offset
                 SrcCb0_I32 = _mm_sub_epi32(SrcCb0_I32, SrcMidValueV_I32);
                 SrcCb1_I32 = _mm_sub_epi32(SrcCb1_I32, SrcMidValueV_I32);
