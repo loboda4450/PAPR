@@ -25,11 +25,11 @@ void xSepia_STD::createTasks(const xPic &Src, xPic &Dst, const int &Height, cons
                 ystack.push(y + TSize);
             }
             if (Mode) { //due to my laziness i wont make an enum or even more wont pass a method to execute, satisfy yself with this shit. enjoy.
-                m_ThreadPool->addWaitingTask([&Dst, &Src, x, y, TSize](int32 ThreadIdx) {
+                m_ThreadPool->addWaitingTask([&Dst, &Src, x, y, TSize](int32 /*ThreadIdx*/) {
                     xTestYUVtoRGBtoYUV_FLT(Dst, Src, y, y + TSize, x, x + TSize);
                 });
             } else {
-                m_ThreadPool->addWaitingTask([&Dst, &Src, x, y, TSize](int32 ThreadIdx) {
+                m_ThreadPool->addWaitingTask([&Dst, &Src, x, y, TSize](int32 /*ThreadIdx*/) {
                     xApplySepiaEffect_FLT(Dst, Src, y, y + TSize, x, x + TSize);
                 });
             }
@@ -113,7 +113,7 @@ void xSepia_STD::testYUVtoRGBtoYUV_FLT(xPic &Dst, const xPic &Src, eMode ProcMod
                     });
                 }
             }
-            m_ThreadPool->waitUntilTasksFinished(Width * Height);
+            m_ThreadPool->waitUntilTasksFinished(Width * Height/16); //4*4
             break;
         }
         case eMode::TILES8:
