@@ -26,6 +26,63 @@ public:
                     {(flt32) (0.349), (flt32) (0.686), (flt32) (0.168)},
                     {(flt32) (0.272), (flt32) (0.534), (flt32) (0.131)},
             };
+
+    static constexpr inline int32 RGB2YCbCr_I32[3][3] = { // gotta right shift it by 16 in the end
+            {
+                    (int32) (13933),
+                    (int32) (46871),
+                    (int32) (4732),
+            },
+            {
+                    (int32) (-7508),
+                    (int32) (-25260),
+                    (int32) (32768),
+            },
+            {
+                    (int32) (32768),
+                    (int32) (-29763),
+                    (int32) (-3005),
+            },
+
+    };
+
+    static constexpr inline int32 YCbCr2RGB_I32[3][3] = { // gotta right shift it by 16 in the end
+            {
+                    (int32) (65536),
+                    (int32) (0),
+                    (int32) (103206),
+            },
+            {
+                    (int32) (65536),
+                    (int32) (-12276),
+                    (int32) (-30679),
+            },
+            {
+                    (int32) (65536),
+                    (int32) (121609),
+                    (int32) (0),
+            },
+
+    };
+
+    static constexpr inline int32 SEPIA_I32[3][3] = { // gotta right shift it by 16 in the end
+            {
+                    (int32) (25756),
+                    (int32) (50397),
+                    (int32) (12386),
+            },
+            {
+                    (int32) (22872),
+                    (int32) (44958),
+                    (int32) (11010),
+            },
+            {
+                    (int32) (17826),
+                    (int32) (34996),
+                    (int32) (8585),
+            },
+
+    };
 };
 
 //===============================================================================================================================================================================================================
@@ -68,6 +125,10 @@ public:
 
     void applySepiaEffect_FLT(xPic &Dst, const xPic &Src, eMode ProcMode);
 
+    void testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src, eMode ProcMode);
+
+    void applySepiaEffect_INT(xPic &Dst, const xPic &Src, eMode ProcMode);
+
     int32 getTileSize(const int32 &maxPos, const int32 &TileSize, const int32 &curPos) {
         int32 newTileSize = TileSize;
         while (curPos + newTileSize > maxPos and newTileSize >= 1) {
@@ -77,11 +138,16 @@ public:
     }
 
     void createTasks(const xPic &Src, xPic &Dst, const int &Height, const int &Width, const int &TileSize, const bool &Mode);
+    void createTasks_butINT(const xPic &Src, xPic &Dst, const int &Height, const int &Width, const int &TileSize, const bool &Mode);
 
 protected:
     static void xTestYUVtoRGBtoYUV_FLT(xPic &Dst, const xPic &Src, int32 BegY, int32 EndY, int32 BegX, int32 EndX);
 
     static void xApplySepiaEffect_FLT(xPic &Dst, const xPic &Src, int32 BegY, int32 EndY, int32 BegX, int32 EndX);
+
+    static void xTestYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src, int32 BegY, int32 EndY, int32 BegX, int32 EndX);
+
+    static void xApplySepiaEffect_INT(xPic &Dst, const xPic &Src, int32 BegY, int32 EndY, int32 BegX, int32 EndX);
 };
 
 //===============================================================================================================================================================================================================
