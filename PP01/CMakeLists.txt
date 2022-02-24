@@ -12,8 +12,8 @@ if(MSVC)
   endforeach()
 endif()
 
-# set c++17, HAHA NOPE, I PREFER C++20
-set (CMAKE_CXX_STANDARD 20)
+# set c++17
+set (CMAKE_CXX_STANDARD 17)
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
 # compile everything position independent (even static libraries)
