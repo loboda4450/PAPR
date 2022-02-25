@@ -44,7 +44,7 @@ find_package (Threads REQUIRED)
 set(PROJECT_SOURCES  
   ppCommon.h
   ppRing.h
-  PP01.cpp)
+  PP01.cpp ppQueue.h)
 
 source_group("Source Files" FILES ${PROJECT_SOURCES})
 
