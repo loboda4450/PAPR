@@ -58,7 +58,7 @@
 int main(int /*argc*/, char** /*argv*/, char** /*envp*/)
 {   
   //readed from commandline/config 
-  std::string InputFile[2]    = { "../../Poznan_Street/Poznan_Street_00_1920x1088_tex_cam03.yuv", "../../Poznan_Street/Poznan_Street_00_1920x1088_tex_cam03_jpeg.yuv" };
+  std::string InputFile[2]    = { "/tmp/Poznan_Street/Poznan_Street_00_1920x1088_tex_cam03.yuv", "/tmp/Poznan_Street/Poznan_Street_00_1920x1088_tex_cam03_jpeg.yuv" };
   int32       PictureWidth    = 1920;
   int32       PictureHeight   = 1088;
   int32       BitDepth        = 8   ;  

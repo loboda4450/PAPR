@@ -35,7 +35,7 @@
 
  // Original authors: Jakub Stankowski, jakub.stankowski@put.poznan.pl,
  //                   Adrian Dziembowski, adrian.dziembowski@put.poznan.pl,
- //                   Poznan University of Technology, Poznañ, Poland
+ //                   Poznan University of Technology, Poznaï¿½, Poland
 
 #include "CommonDef.h"
 #include "xPic.h"
@@ -69,6 +69,7 @@ protected:
   tRes1 xCalcCmpPSNR_OMP   (const xPic& Tst, const xPic& Ref, int32 CmpIdx);
   tRes1 xCalcCmpPSNR_MUTEX (const xPic& Tst, const xPic& Ref, int32 CmpIdx);
   tRes1 xCalcCmpPSNR_ATOMIC(const xPic& Tst, const xPic& Ref, int32 CmpIdx);
+  tRes1 xCalcCmpPSNR_OMP_ATOMIC(const xPic& Tst, const xPic& Ref, int32 CmpIdx);
   tRes1 xCalcCmpPSNR_BUFFER(const xPic& Tst, const xPic& Ref, int32 CmpIdx);
 
 
