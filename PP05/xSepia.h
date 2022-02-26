@@ -104,6 +104,19 @@ public:
         TILES1024 = 10,
     };
 
+    constexpr static const xSepiaBase::eMode All_eModes[1] = {/*xSepiaBase::eMode::SERIAL,
+                                                               */xSepiaBase::eMode::ROWS};/*
+                                                               xSepiaBase::eMode::TILES4,
+                                                               xSepiaBase::eMode::TILES8,
+                                                               xSepiaBase::eMode::TILES16,
+                                                               xSepiaBase::eMode::TILES32,
+                                                               xSepiaBase::eMode::TILES64,
+                                                               xSepiaBase::eMode::TILES128,
+                                                               xSepiaBase::eMode::TILES256,
+                                                               xSepiaBase::eMode::TILES512,
+                                                               xSepiaBase::eMode::TILES1024,
+                                                               xSepiaBase::eMode::PIXELS};*/
+
 protected:
     xThreadPool *m_ThreadPool = nullptr;
     int32 m_VerboseLevel = 0;
@@ -129,6 +142,10 @@ public:
 
     void applySepiaEffect_INT(xPic &Dst, const xPic &Src, eMode ProcMode);
 
+    void testYUVtoRGBtoYUV_SSE(xPic &Dst, const xPic &Src, eMode ProcMode);
+
+    void applySepiaEffect_SSE(xPic &Dst, const xPic &Src, eMode ProcMode);
+
     int32 getTileSize(const int32 &maxPos, const int32 &TileSize, const int32 &curPos) {
         int32 newTileSize = TileSize;
         while (curPos + newTileSize > maxPos and newTileSize >= 1) {
@@ -137,8 +154,14 @@ public:
         return newTileSize;
     }
 
-    void createTasks(const xPic &Src, xPic &Dst, const int &Height, const int &Width, const int &TileSize, const bool &Mode);
-    void createTasks_butINT(const xPic &Src, xPic &Dst, const int &Height, const int &Width, const int &TileSize, const bool &Mode);
+    void
+    createTasks(const xPic &Src, xPic &Dst, const int &Height, const int &Width, const int &TileSize, const bool &Mode);
+
+    void createTasks_butINT(const xPic &Src, xPic &Dst, const int &Height, const int &Width, const int &TileSize,
+                            const bool &Mode);
+
+    void createTasks_butSSE(const xPic &Src, xPic &Dst, const int &Height, const int &Width, const int &TileSize,
+                            const bool &Mode);
 
 protected:
     static void xTestYUVtoRGBtoYUV_FLT(xPic &Dst, const xPic &Src, int32 BegY, int32 EndY, int32 BegX, int32 EndX);
@@ -148,6 +171,10 @@ protected:
     static void xTestYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src, int32 BegY, int32 EndY, int32 BegX, int32 EndX);
 
     static void xApplySepiaEffect_INT(xPic &Dst, const xPic &Src, int32 BegY, int32 EndY, int32 BegX, int32 EndX);
+
+    static void xTestYUVtoRGBtoYUV_SSE(xPic &Dst, const xPic &Src, int32 BegY, int32 EndY, int32 BegX, int32 EndX);
+
+    static void xApplySepiaEffect_SSE(xPic &Dst, const xPic &Src, int32 BegY, int32 EndY, int32 BegX, int32 EndX);
 };
 
 //===============================================================================================================================================================================================================
