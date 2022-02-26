@@ -4,7 +4,7 @@
 void print128_num(__m128i var) {
     uint32_t val[4];
     memcpy(val, &var, sizeof(val));
-    printf("Numerical: %i %i %i %i \n",
+    printf("%i %i %i %i \n",
            val[0], val[1], val[2], val[3]);
 }
 
@@ -450,93 +450,69 @@ void xSepia_SSE::testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src) {
                 __m128i SrcCr0_I32 = _mm_cvtepi16_epi32(SrcCrV_U16);
                 __m128i SrcCr1_I32 = _mm_cvtepi16_epi32(_mm_srli_si128(SrcCrV_U16, 8));
 
-                // bright it up
-                SrcLm0_I32 = _mm_mul_epi32(SrcLm0_I32, _mm_set1_epi32(32768));
-                SrcLm1_I32 = _mm_mul_epi32(SrcLm1_I32, _mm_set1_epi32(32768));
-
-                // removing chroma offset
+                SrcLm0_I32 = _mm_slli_epi32(SrcLm0_I32, 16);
+                SrcLm1_I32 = _mm_slli_epi32(SrcLm1_I32, 16);
                 SrcCb0_I32 = _mm_sub_epi32(SrcCb0_I32, SrcMidValueV_I32);
                 SrcCb1_I32 = _mm_sub_epi32(SrcCb1_I32, SrcMidValueV_I32);
                 SrcCr0_I32 = _mm_sub_epi32(SrcCr0_I32, SrcMidValueV_I32);
                 SrcCr1_I32 = _mm_sub_epi32(SrcCr1_I32, SrcMidValueV_I32);
 
                 //convert YCbCr --> RGB (BT.709)
-                __m128i SrcR0_I32 = _mm_add_epi32(
-                        SrcLm0_I32,
-                        _mm_mul_epi32(
-                                SrcCr0_I32,
-                                _mm_set1_epi32(YCbCr2RGB_I32[0][2])));
-
-                __m128i SrcR1_I32 = _mm_add_epi32(
-                        SrcLm1_I32,
-                        _mm_mul_epi32(
-                                SrcCr1_I32,
-                                _mm_set1_epi32(YCbCr2RGB_I32[0][2])));
-
-                __m128i SrcG0_I32 = _mm_add_epi32(
-                        SrcLm0_I32,
+                __m128i SrcR0_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
-                                _mm_mul_epi32(
-                                        SrcCb0_I32,
-                                        _mm_set1_epi32(YCbCr2RGB_I32[1][1])),
-                                _mm_mul_epi32(
-                                        SrcCr0_I32,
-                                        _mm_set1_epi32(YCbCr2RGB_I32[1][2]))));
-
-                __m128i SrcG1_I32 = _mm_add_epi32(
-                        SrcLm1_I32,
-                        _mm_add_epi32(
-                                _mm_mul_epi32(
-                                        SrcCb1_I32,
-                                        _mm_set1_epi32(YCbCr2RGB_I32[1][1])),
-                                _mm_mul_epi32(
-                                        SrcCr1_I32,
-                                        _mm_set1_epi32(YCbCr2RGB_I32[1][2]))));
-
-                __m128i SrcB0_I32 = _mm_add_epi32(
-                        SrcLm0_I32,
-                        _mm_mul_epi32(
-                                SrcCb0_I32,
-                                _mm_set1_epi32(YCbCr2RGB_I32[2][1])));
-
-                __m128i SrcB1_I32 = _mm_add_epi32(
-                        SrcLm1_I32,
-                        _mm_mul_epi32(
-                                SrcCb1_I32,
-                                _mm_set1_epi32(YCbCr2RGB_I32[2][1])));
-
-                //add round value and right shift by 16
-                SrcR0_I32 = _mm_srai_epi32(
-                        _mm_add_epi32(
-                                SrcR0_I32,
+                                _mm_add_epi32(
+                                        SrcLm0_I32,
+                                        _mm_mul_epi32(
+                                                SrcCr0_I32,
+                                                _mm_set1_epi32(YCbCr2RGB_I32[0][2]))),
                                 _mm_set1_epi32(32768)),
                         16);
-                SrcR1_I32 = _mm_srai_epi32(
+                __m128i SrcG0_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
-                                SrcR1_I32,
-                                _mm_set1_epi32(32768)),
-                        16);
-                SrcG0_I32 = _mm_srai_epi32(
-                        _mm_add_epi32(
-                                SrcG0_I32,
-                                _mm_set1_epi32(32768)),
-                        16);
-                SrcG1_I32 = _mm_srai_epi32(
-                        _mm_add_epi32(
-                                SrcG1_I32,
-                                _mm_set1_epi32(32768)),
-                        16);
-                SrcB0_I32 = _mm_srai_epi32(
-                        _mm_add_epi32(
-                                SrcB0_I32,
-                                _mm_set1_epi32(32768)),
-                        16);
-                SrcB1_I32 = _mm_srai_epi32(
-                        _mm_add_epi32(
-                                SrcB1_I32,
+                                _mm_add_epi32(SrcLm0_I32,
+                                              _mm_add_epi32(
+                                                      _mm_mul_epi32(SrcCb0_I32, _mm_set1_epi32(YCbCr2RGB_I32[1][1])),
+                                                      _mm_mul_epi32(SrcCr0_I32, _mm_set1_epi32(YCbCr2RGB_I32[1][2])))),
                                 _mm_set1_epi32(32768)),
                         16);
 
+                __m128i SrcB0_I32 = _mm_srai_epi32(
+                        _mm_add_epi32(
+                                _mm_add_epi32(
+                                        SrcLm0_I32,
+                                        _mm_mul_epi32(
+                                                SrcCb0_I32,
+                                                _mm_set1_epi32(YCbCr2RGB_I32[2][1]))),
+                                _mm_set1_epi32(32768)),
+                        16);
+
+                __m128i SrcR1_I32 = _mm_srai_epi32(
+                        _mm_add_epi32(
+                                _mm_add_epi32(
+                                        SrcLm1_I32,
+                                        _mm_mul_epi32(
+                                                SrcCr1_I32,
+                                                _mm_set1_epi32(YCbCr2RGB_I32[0][2]))),
+                                _mm_set1_epi32(32768)),
+                        16);
+                __m128i SrcG1_I32 = _mm_srai_epi32(
+                        _mm_add_epi32(
+                                _mm_add_epi32(SrcLm1_I32,
+                                              _mm_add_epi32(
+                                                      _mm_mul_epi32(SrcCb1_I32, _mm_set1_epi32(YCbCr2RGB_I32[1][1])),
+                                                      _mm_mul_epi32(SrcCr1_I32, _mm_set1_epi32(YCbCr2RGB_I32[1][2])))),
+                                _mm_set1_epi32(32768)),
+                        16);
+
+                __m128i SrcB1_I32 = _mm_srai_epi32(
+                        _mm_add_epi32(
+                                _mm_add_epi32(
+                                        SrcLm1_I32,
+                                        _mm_mul_epi32(
+                                                SrcCb1_I32,
+                                                _mm_set1_epi32(YCbCr2RGB_I32[2][1]))),
+                                _mm_set1_epi32(32768)),
+                        16);
 
                 //copy RGB --> RGB
                 __m128i DstR0_I32 = SrcR0_I32;
@@ -546,132 +522,102 @@ void xSepia_SSE::testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src) {
                 __m128i DstB0_I32 = SrcB0_I32;
                 __m128i DstB1_I32 = SrcB1_I32;
 
-//                //print section for debugging purposes (debugger sucks..)
-//                print128_num(DstR0_I32);
-//                print128_num(DstR1_I32);
-//                print128_num(DstG0_I32);
-//                print128_num(DstG1_I32);
-//                print128_num(DstB0_I32);
-//                print128_num(DstB1_I32);
-//                printf("\n\n");
+
 
                 //convert RGB --> YCbCr (BT.709)
-                __m128i DstLm0_I32 = _mm_add_epi32(
-                        _mm_mul_epi32(
-                                DstR0_I32,
-                                _mm_set1_epi32(RGB2YCbCr_I32[0][0])),
+                __m128i DstLm0_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
-                                _mm_mul_epi32(
-                                        DstG0_I32,
-                                        _mm_set1_epi32(RGB2YCbCr_I32[0][1])),
-                                _mm_mul_epi32(
-                                        DstB0_I32,
-                                        _mm_set1_epi32(RGB2YCbCr_I32[0][2]))));
+                                _mm_add_epi32(
+                                        _mm_mul_epi32(
+                                                DstR0_I32,
+                                                _mm_set1_epi32(RGB2YCbCr_I32[0][0])),
+                                        _mm_add_epi32(
+                                                _mm_mul_epi32(
+                                                        DstG0_I32,
+                                                        _mm_set1_epi32(RGB2YCbCr_I32[0][1])),
+                                                _mm_mul_epi32(
+                                                        DstB0_I32,
+                                                        _mm_set1_epi32(RGB2YCbCr_I32[0][2])))),
+                                _mm_set1_epi32(32768)), 16);
 
-                __m128i DstLm1_I32 = _mm_add_epi32(
-                        _mm_mul_epi32(
-                                DstR1_I32,
-                                _mm_set1_epi32(RGB2YCbCr_I32[0][0])),
+                __m128i DstCb0_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
-                                _mm_mul_epi32(
-                                        DstG1_I32,
-                                        _mm_set1_epi32(RGB2YCbCr_I32[0][1])),
-                                _mm_mul_epi32(
-                                        DstB1_I32,
-                                        _mm_set1_epi32(RGB2YCbCr_I32[0][2]))));
+                                _mm_add_epi32(
+                                        _mm_mul_epi32(
+                                                DstR0_I32,
+                                                _mm_set1_epi32(RGB2YCbCr_I32[1][0])),
+                                        _mm_add_epi32(
+                                                _mm_mul_epi32(
+                                                        DstG0_I32,
+                                                        _mm_set1_epi32(RGB2YCbCr_I32[1][1])),
+                                                _mm_mul_epi32(
+                                                        DstB0_I32,
+                                                        _mm_set1_epi32(RGB2YCbCr_I32[1][2])))),
+                                _mm_set1_epi32(32768)), 16);
 
-                __m128i DstCb0_I32 = _mm_add_epi32(
-                        _mm_mul_epi32(
-                                DstR0_I32,
-                                _mm_set1_epi32(RGB2YCbCr_I32[1][0])),
-                        _mm_add_epi32(_mm_mul_epi32(
-                                              DstG0_I32,
-                                              _mm_set1_epi32(
-                                                      RGB2YCbCr_I32[1][1])),
-                                      _mm_mul_epi32(
-                                              DstB0_I32,
-                                              _mm_set1_epi32(RGB2YCbCr_I32[1][2]))));
+                __m128i DstCr0_I32 = _mm_srai_epi32(
+                        _mm_add_epi32(
+                                _mm_add_epi32(
+                                        _mm_mul_epi32(
+                                                DstR0_I32,
+                                                _mm_set1_epi32(RGB2YCbCr_I32[2][0])),
+                                        _mm_add_epi32(
+                                                _mm_mul_epi32(
+                                                        DstG0_I32,
+                                                        _mm_set1_epi32(RGB2YCbCr_I32[2][1])),
+                                                _mm_mul_epi32(
+                                                        DstB0_I32,
+                                                        _mm_set1_epi32(RGB2YCbCr_I32[2][2])))),
+                                _mm_set1_epi32(32768)), 16);
 
-                __m128i DstCb1_I32 = _mm_add_epi32(
-                        _mm_mul_epi32(
-                                DstR1_I32,
-                                _mm_set1_epi32(RGB2YCbCr_I32[1][0])),
+                __m128i DstLm1_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
-                                _mm_mul_epi32(
-                                        DstG1_I32,
-                                        _mm_set1_epi32(
-                                                RGB2YCbCr_I32[1][1])),
-                                _mm_mul_epi32(
-                                        DstB1_I32,
-                                        _mm_set1_epi32(RGB2YCbCr_I32[1][2]))));
+                                _mm_add_epi32(
+                                        _mm_mul_epi32(
+                                                DstR1_I32,
+                                                _mm_set1_epi32(RGB2YCbCr_I32[0][0])),
+                                        _mm_add_epi32(
+                                                _mm_mul_epi32(
+                                                        DstG1_I32,
+                                                        _mm_set1_epi32(RGB2YCbCr_I32[0][1])),
+                                                _mm_mul_epi32(
+                                                        DstB1_I32,
+                                                        _mm_set1_epi32(RGB2YCbCr_I32[0][2])))),
+                                _mm_set1_epi32(32768)), 16);
 
-                __m128i DstCr0_I32 = _mm_add_epi32(
-                        _mm_mul_epi32(
-                                DstR0_I32,
-                                _mm_set1_epi32(
-                                        RGB2YCbCr_I32[2][0])),
+                __m128i DstCb1_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
-                                _mm_mul_epi32(
-                                        DstG0_I32,
-                                        _mm_set1_epi32(
-                                                RGB2YCbCr_I32[2][1])),
-                                _mm_mul_epi32(
-                                        DstB0_I32,
-                                        _mm_set1_epi32(RGB2YCbCr_I32[2][2]))));
+                                _mm_add_epi32(
+                                        _mm_mul_epi32(
+                                                DstR1_I32,
+                                                _mm_set1_epi32(RGB2YCbCr_I32[1][0])),
+                                        _mm_add_epi32(
+                                                _mm_mul_epi32(
+                                                        DstG1_I32,
+                                                        _mm_set1_epi32(RGB2YCbCr_I32[1][1])),
+                                                _mm_mul_epi32(
+                                                        DstB1_I32,
+                                                        _mm_set1_epi32(RGB2YCbCr_I32[1][2])))),
+                                _mm_set1_epi32(32768)), 16);
 
-                __m128i DstCr1_I32 = _mm_add_epi32(
-                        _mm_mul_epi32(
-                                DstR1_I32,
-                                _mm_set1_epi32(
-                                        RGB2YCbCr_I32[2][0])),
+                __m128i DstCr1_I32 = _mm_srai_epi32(
                         _mm_add_epi32(
-                                _mm_mul_epi32(
-                                        DstG1_I32,
-                                        _mm_set1_epi32(
-                                                RGB2YCbCr_I32[2][1])),
-                                _mm_mul_epi32(
-                                        DstB1_I32,
-                                        _mm_set1_epi32(RGB2YCbCr_I32[2][2]))));
+                                _mm_add_epi32(
+                                        _mm_mul_epi32(
+                                                DstR1_I32,
+                                                _mm_set1_epi32(RGB2YCbCr_I32[2][0])),
+                                        _mm_add_epi32(
+                                                _mm_mul_epi32(
+                                                        DstG1_I32,
+                                                        _mm_set1_epi32(RGB2YCbCr_I32[2][1])),
+                                                _mm_mul_epi32(
+                                                        DstB1_I32,
+                                                        _mm_set1_epi32(RGB2YCbCr_I32[2][2])))),
+                                _mm_set1_epi32(32768)), 16);
 
-                //add round value and right shift by 16
-                DstLm0_I32 = _mm_srai_epi32(
-                        _mm_add_epi32(
-                                DstLm0_I32,
-                                _mm_set1_epi32(32768)),
-                        16);
-                DstLm1_I32 = _mm_srai_epi32(
-                        _mm_add_epi32(
-                                DstLm1_I32,
-                                _mm_set1_epi32(32768)),
-                        16);
-                DstCb0_I32 = _mm_srai_epi32(
-                        _mm_add_epi32(
-                                DstCb0_I32,
-                                _mm_set1_epi32(32768)),
-                        16);
-
-                DstCb1_I32 = _mm_srai_epi32(
-                        _mm_add_epi32(
-                                DstCb1_I32,
-                                _mm_set1_epi32(32768)),
-                        16);
-                DstCr0_I32 = _mm_srai_epi32(
-                        _mm_add_epi32(
-                                DstCr0_I32,
-                                _mm_set1_epi32(32768)),
-                        16);
-                DstCr1_I32 = _mm_srai_epi32(
-                        _mm_add_epi32(
-                                DstCr1_I32,
-                                _mm_set1_epi32(32768)),
-                        16);
-
-
-
-                //skipping converting luma cuz we work on ints
                 //change data format (and apply chroma offset) + clip to range 0-Max
-//                __m128i DstLm0_I32 = _mm_cvtps_epi32(DstLm0_I32);
-//                __m128i DstLm1_I32 = _mm_cvtps_epi32(DstLm1_I32);
+//                DstLm0_I32 = DstLm0_I32;
+//                DstLm1_I32 = DstLm1_I32;
                 DstCb0_I32 = _mm_add_epi32(DstCb0_I32, DstMidValueV_I32);
                 DstCb1_I32 = _mm_add_epi32(DstCb1_I32, DstMidValueV_I32);
                 DstCr0_I32 = _mm_add_epi32(DstCr0_I32, DstMidValueV_I32);
@@ -683,21 +629,9 @@ void xSepia_SSE::testYUVtoRGBtoYUV_INT(xPic &Dst, const xPic &Src) {
 
                 //clip
                 const __m128i ZeroV_U16 = _mm_setzero_si128();
-                __m128i DstLm_U16 = _mm_max_epi16(
-                        _mm_min_epi16(
-                                DstLm_I16,
-                                DstMaxValueV_U16),
-                        ZeroV_U16);
-                __m128i DstCb_U16 = _mm_max_epi16(
-                        _mm_min_epi16(
-                                DstCb_I16,
-                                DstMaxValueV_U16),
-                        ZeroV_U16);
-                __m128i DstCr_U16 = _mm_max_epi16(
-                        _mm_min_epi16(
-                                DstCr_I16,
-                                DstMaxValueV_U16),
-                        ZeroV_U16);
+                __m128i DstLm_U16 = _mm_max_epi16(_mm_min_epi16(DstLm_I16, DstMaxValueV_U16), ZeroV_U16);
+                __m128i DstCb_U16 = _mm_max_epi16(_mm_min_epi16(DstCb_I16, DstMaxValueV_U16), ZeroV_U16);
+                __m128i DstCr_U16 = _mm_max_epi16(_mm_min_epi16(DstCr_I16, DstMaxValueV_U16), ZeroV_U16);
 
                 //store
                 _mm_storeu_si128((__m128i *) (DstPtrLm + x), DstLm_U16);
